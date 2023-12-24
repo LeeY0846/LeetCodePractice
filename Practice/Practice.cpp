@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
@@ -83,7 +84,7 @@ public:
     }
 };
 
-class Solution {
+class Solution3 {
 public:
     int lengthOfLongestSubstring(string s) {
         unordered_map<char, int> m;
@@ -112,12 +113,101 @@ public:
     }
 };
 
+class Solution4 { // Binary search. Need review. **
+public:
+    int p1 = 0, p2 = 0;
+
+    // Get the smaller value between nums1[p1] and nums2[p2] and move the pointer forward.
+
+    int getMin(vector<int>& nums1, vector<int>& nums2) {
+        if (p1 < nums1.size() && p2 < nums2.size()) {
+            return nums1[p1] < nums2[p2] ? nums1[p1++] : nums2[p2++];
+        }
+        else if (p1 < nums1.size()) {
+            return nums1[p1++];
+        }
+        else if (p2 < nums2.size()) {
+            return nums2[p2++];
+        }
+        return -1;
+    }
+    // O(m+n)
+    double findMedianSortedArrays_direct(vector<int>& nums1, vector<int>& nums2) {
+        int m = int(nums1.size()), n = int(nums2.size());
+
+        if ((m + n) % 2 == 0) {
+            for (int i = 0; i < (m + n) / 2 - 1; ++i) {
+                int _ = getMin(nums1, nums2);
+            }
+            return (double)(getMin(nums1, nums2) + getMin(nums1, nums2)) / 2;
+        }
+        else {
+            for (int i = 0; i < (m + n) / 2; ++i) {
+                int _ = getMin(nums1, nums2);
+            }
+            return getMin(nums1, nums2);
+        }
+
+        return -1;
+    }
+
+    // Binary Search O(log(m+n))
+
+};
+
 int main()
 {
-    string s{ "abba" };
-    Solution sol = Solution();
-    cout << sol.lengthOfLongestSubstring(s);
+    cout << "Hello" << endl;
 }
+
+class MyCircularQueue {
+public:
+    vector<int> values;
+    int max_capacity;
+    int start_p = 0, end_p = 1;
+
+
+    MyCircularQueue(int k) {
+        values = vector<int>();
+        values.reserve(k);
+        max_capacity = k;
+    }
+
+    bool enQueue(int value) {
+        if (isFull()) return false;
+        values[end_p] = value;
+        end_p += 1;
+        if (end_p == max_capacity) end_p = 0;
+        return true;
+    }
+
+    bool deQueue() {
+        if (isEmpty()) return false;
+        start_p += 1;
+        if (start_p == max_capacity) start_p = 0;
+        return true;
+    }
+
+    int Front() {
+        return values[start_p];
+    }
+
+    int Rear() {
+        if (!isEmpty()) {
+            return values[end_p == 0 ? max_capacity - 1 : end_p - 1];
+        }
+        return -100;
+    }
+
+    bool isEmpty() {
+        if (end_p < start_p) return end_p + max_capacity - start_p == 1;
+        return end_p - start_p == 1;
+    }
+
+    bool isFull() {
+        return start_p == end_p;
+    }
+};
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
