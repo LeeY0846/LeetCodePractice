@@ -213,7 +213,7 @@ public:
             res.emplace_back('0');
             res.emplace_back('8');
         }
-        else [[likely]]{
+        else {
             res.emplace_back(c - 1);
             res.emplace_back(c + 1);
         }
@@ -262,6 +262,126 @@ public:
         else {
             return s >= "10" && s <= "26";
         }
+    }
+};
+
+class Solution_1155_just_use_a_2D_array_not_a_hashmap {
+public:
+
+    const int mod = (int)pow(10, 9) + 7;
+
+    struct Key {
+        int dices;
+        int target;
+        Key(int _dices, int _target) :dices(_dices), target(_target) {}
+
+        bool operator<(const Key& other) const {
+            if (dices < other.dices) return true;
+            else if (dices > other.dices) return false;
+            if (target < other.target) return true;
+            else return false;
+        }
+    };
+
+    struct HashFunc
+    {
+        std::size_t operator()(const Key& key) const
+        {
+            using std::size_t;
+            using std::hash;
+
+            return ((hash<int>()(key.dices)
+                ^ (hash<int>()(key.target) << 1)) >> 1);
+        }
+    };
+
+    struct EqualKey
+    {
+        bool operator () (const Key& lhs, const Key& rhs) const
+        {
+            return lhs.dices == rhs.dices
+                && lhs.target == rhs.target;
+        }
+    };
+
+    unordered_map<Key, long long, HashFunc, EqualKey> dp = unordered_map<Key, long long, HashFunc, EqualKey>();
+
+    long long numRollsToTarget(int n, int k, int target) {
+        if (target == 0 && n == 0) return 1;
+        if (n == 0 || target <= 0) return 0;
+
+        Key new_key = Key(n, target);
+        if (dp.find(new_key) != dp.cend()) {
+            return dp[new_key];
+        }
+        long long count = helper(n, k, target);
+        return dp[new_key] = count;
+    }
+
+    long long helper(int n, int k, int target) {
+        // int count = min(target, k);
+        long long sum = 0;
+        for (int i = 1; i <= k; i++) {
+            sum += numRollsToTarget(n - 1, k, target - i) % mod;
+        }
+        return sum % mod;
+    }
+};
+
+class Solution_6 {
+public:
+    string longestPalindrome(string s) {
+        if (s.size() == 1) return s;
+        size_t n = s.size();
+        vector<vector<bool>> table = vector<vector<bool>>(n, vector<bool>(n, false));
+        auto ans = make_pair(0, 0);
+
+        for (size_t i = 0; i != n; i++) {
+            table[i][i] = true;
+        }
+
+        for (size_t i = 0; i != n - 1; i++) {
+            if (s[i] == s[i + 1]) {
+                table[i][i + 1] = true;
+                ans.first = i;
+                ans.second = i + 1;
+            }
+        }
+
+        for (size_t diff = 2; diff != n; diff++) {
+            for (size_t i = 0; i < n - diff; i++) {
+                int j = i + diff;
+                if (s[i] == s[j] && table[i + 1][j - 1]) {
+                    table[i][j] = true;
+                    ans.first = i;
+                    ans.second = j;
+                }
+            }
+        }
+        return s.substr(ans.first, ans.second - ans.first + 1);
+    }
+};
+
+class Solution_1531_dp_need_review {
+public:
+    int dp[101][101];
+    int dfs(string& s, int left, int K) {
+        int k = K;
+        if (s.size() - left <= k) return 0;
+        if (dp[left][k] >= 0) return dp[left][k];
+        int res = k ? dfs(s, left + 1, k - 1) : 10000, c = 1;
+        for (int i = left + 1; i <= s.size(); ++i) {
+            res = min(res, dfs(s, i, k) + 1 + (c >= 100 ? 3 : (c >= 10 ? 2 : (c > 1 ? 1 : 0))));
+            if (i == s.size()) break;
+            if (s[i] == s[left]) ++c;
+            else if (--k < 0) break;
+        }
+        return dp[left][K] = res;
+    }
+
+    int getLengthOfOptimalCompression(string s, int k) {
+        memset(dp, -1, sizeof(dp));
+        return dfs(s, 0, k);
     }
 };
 
