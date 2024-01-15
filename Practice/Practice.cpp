@@ -385,6 +385,89 @@ public:
     }
 };
 
+class Solution_1335 {
+public:
+    int minDifficulty(vector<int>& jobDifficulty, int d) {
+        int n = (int)jobDifficulty.size();
+        if (d > n) return -1;
+        if (d == n) return sum(jobDifficulty);
+        vector<vector<int>> dp = vector<vector<int>>(n, vector<int>(d, -1));
+
+        for (int i = 0; i != n; i++) {
+            for (int j = 0; j != d; j++) {
+                dp[i][j] = 0;
+            }
+        }
+    }
+
+    int sum(vector<int>& vec) {
+        int s = 0;
+        for (int i = 0; i != vec.size(); i++) {
+            s += vec[i];
+        }
+        return s;
+    }
+};
+
+class Solution_16 {
+public:
+    int threeSumClosest(vector<int>& nums, int target) {
+        sort(nums.begin(), nums.end());
+        int closest_dist = INT_MAX;
+        int closest = INT_MAX;
+        for (int i = 0; i < nums.size(); i++) {
+            int dist = abs(target - nums[i]);
+            if (3 * dist > closest_dist) break;
+            int j = i + 1;
+            int k = nums.size() - 1;
+
+            int last_dist = INT_MIN;
+            while (j < k) {
+                int sum = nums[i] + nums[j] + nums[k];
+                int dist = target - sum;
+                if (abs(dist) < closest_dist) {
+                    closest_dist = abs(dist);
+                    closest = sum;
+                }
+                if (dist < 0) {
+                    k--;
+                }
+                else {
+                    j++;
+                }
+                last_dist = dist;
+            }
+        }
+        return closest;
+    }
+};
+
+class Solution_17 {
+public:
+    vector<string> letterCombinations(string digits) {
+        if (digits.size() == 0) return vector<string>();
+        vector<string> letters = vector<string>{ "abc","def","ghi","jkl","mno","pqrs","tuv","wxyz" };
+        vector<int> poss = vector<int>{ 3,3,3,3,3,4,3,4 };
+        int n = 1;
+        for (char& c : digits) n *= poss[c - '2'];
+        vector<string> res = vector<string>(n, "");
+
+        int ni = n;
+        for (int k = 0; k != digits.size(); k++) {
+            int ind = digits[k] - '2';
+            for (int i = 0; i != n / ni; i++) {
+                for (int c = 0; c != letters[ind].size(); c++) {
+                    for (int j = 0; j != ni / poss[ind]; j++) {
+                        res[i * letters[ind].size() * ni / poss[ind] + c * ni / poss[ind] + j] += letters[ind][c];
+                    }
+                }
+            }
+            ni = ni / poss[ind];
+        }
+        return res;
+    }
+};
+
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
 
@@ -398,5 +481,14 @@ public:
 
 int main()
 {
+    ios::sync_with_stdio(false);
+    cout.tie(0);
+    cin.tie(0);
     cout << "Hello" << endl;
+    
+    Solution sol = Solution();
+    auto test_data = vector<int>{ -1,2,1,-4 };
+    auto val = sol.letterCombinations("222");
+    for (auto& c : val) cout << c << " ";
+    cout << endl;
 }
